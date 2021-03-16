@@ -33,13 +33,70 @@
 		reg = <0xc0000000 0x20000000>;
 	};
 
-	vin:vin{
+	vin: vin {
 		compatible = "regulator-fixed";
 		regulator-name = "vin";
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
 	};
+	
+	// http://www.ti.com/lit/ds/symlink/tps54202.pdf
+    vddcore: TPS54202 {
+    	
+      compatible = "regulator-fixed";
+      regulator-name = "vddcore";
+      regulator-min-microvolt = <1350000>;
+      regulator-max-microvolt = <1350000>;
+      regulator-always-on;
+      vin-supply = <&vin>;
+
+    };
+    
+    // http://www.ti.com/lit/ds/symlink/tps54202.pdf
+    vdd_ddr: TPS54202 {
+
+        compatible = "regulator-fixed";
+        regulator-name = "vdd_ddr";
+        regulator-min-microvolt = <1350000>;
+        regulator-max-microvolt = <1350000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    };
+    
+    // https://datasheet.lcsc.com/szlcsc/1912111437_Seaward-Elec-SE8233X2_C437587.pdf
+    vdd: SE8233X2 {
+
+        compatible = "regulator-fixed";
+        regulator-name = "vdd";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    };
+    
+    // https://datasheet.lcsc.com/szlcsc/1912111437_Seaward-Elec-SE8233X2_C437587.pdf
+    v3v3: SE8233X2 {
+    	
+        compatible = "regulator-fixed";
+        regulator-name = "v3v3";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    	
+    };
+    
+    https://datasheet.octopart.com/DMG2302U-7-Diodes-Inc.-datasheet-103571615.pdf
+    vdd_usb: DMG2302U {
+        compatible = "regulator-fixed";
+		regulator-name = "vdd_usb";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&v3v3>;
+    };
+    
 
 	aliases{
 		serial0 = &uart4;
