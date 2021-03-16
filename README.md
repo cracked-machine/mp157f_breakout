@@ -1,10 +1,10 @@
-**<u>STM32CubeIDE mp157f_breakout project</u>**
+## STM32CubeIDE mp157f_breakout project
 
 This the STM32CubeIDE project for generating device tree source files (.dts) and compiling the device tree binary files (.dtb).
 
 Note that this repo only contains the STM32CubeIDE project file (.ioc) and the generated device tree source files. 
 
-**<u>Directory Structure</u>**
+#### Directory Structure
 
 <pre><font color="#3465A4"><b>mp157f_breakout/CA7/</b></font>
 └── <font color="#3465A4"><b>DeviceTree</b></font>
@@ -43,7 +43,7 @@ You can check the build output from Bitbake to check that the dtb file is being 
 | arch/arm/dts/stm32mp157f-mp157f_breakout-mx.dtb: ERROR (phandle_references): /soc/sdmmc@58005000: Reference to non-existent node or label "v3v3"
 ```
 
-**<u>Project Setup</u>**
+#### Project Setup
 
 To compile the source file dts into a binary dtb you must setup the IDE project:
 
