@@ -20,7 +20,7 @@
 /* USER CODE END includes */
 
 / {
-	model = "STMicroelectronics custom STM32CubeMX board";
+	model = "STM32MP157F BreakoutBoard Test1";
 	compatible = "st,stm32mp157f-mp157f_breakout-mx", "st,stm32mp157";
 
 	memory@c0000000 {
@@ -136,6 +136,18 @@
 &pinctrl {
 	u-boot,dm-pre-reloc;
 
+	rtc_pins_mx: rtc_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('C', 13, ANALOG)>; /* RTC_LSCO */
+		};
+	};
+
+	rtc_sleep_pins_mx: rtc_sleep_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('C', 13, ANALOG)>; /* RTC_LSCO */
+		};
+	};
+
 	sdmmc1_pins_mx: sdmmc1_mx-0 {
 		u-boot,dm-pre-reloc;
 		pins1 {
@@ -236,17 +248,13 @@
 };
 
 &m4_rproc{
+	/*Restriction: "memory-region" property is not managed - please to use User-Section if needed*/
+	mboxes = <&ipcc 2>;
+	mbox-names = "shutdown";
 	status = "okay";
 
 	/* USER CODE BEGIN m4_rproc */
 	/* USER CODE END m4_rproc */
-
-	m4_system_resources{
-		status = "okay";
-
-		/* USER CODE BEGIN m4_system_resources */
-		/* USER CODE END m4_system_resources */
-	};
 };
 
 &bsec{
@@ -254,6 +262,14 @@
 
 	/* USER CODE BEGIN bsec */
 	/* USER CODE END bsec */
+};
+
+&cryp1{
+	u-boot,dm-pre-reloc;
+	status = "okay";
+
+	/* USER CODE BEGIN cryp1 */
+	/* USER CODE END cryp1 */
 };
 
 &dma1{
@@ -264,7 +280,7 @@
 };
 
 &dma2{
-	status = "disabled";
+	status = "okay";
 
 	/* USER CODE BEGIN dma2 */
 	/* USER CODE END dma2 */
@@ -272,8 +288,8 @@
 
 &dmamux1{
 
-	dma-masters = <&dma1>;
-	dma-channels = <8>;
+	dma-masters = <&dma1 &dma2>;
+	dma-channels = <16>;
 
 	status = "okay";
 
@@ -296,6 +312,13 @@
 	/* USER CODE END hsem */
 };
 
+&ipcc{
+	status = "okay";
+
+	/* USER CODE BEGIN ipcc */
+	/* USER CODE END ipcc */
+};
+
 &iwdg2{
 	status = "okay";
 
@@ -303,18 +326,18 @@
 	/* USER CODE END iwdg2 */
 };
 
-&m4_dma2{
-	status = "okay";
-
-	/* USER CODE BEGIN m4_dma2 */
-	/* USER CODE END m4_dma2 */
-};
-
 &mdma1{
 	status = "okay";
 
 	/* USER CODE BEGIN mdma1 */
 	/* USER CODE END mdma1 */
+};
+
+&pwr_regulators{
+	status = "okay";
+
+	/* USER CODE BEGIN pwr_regulators */
+	/* USER CODE END pwr_regulators */
 };
 
 &rcc{
@@ -326,6 +349,9 @@
 };
 
 &rtc{
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&rtc_pins_mx>;
+	pinctrl-1 = <&rtc_sleep_pins_mx>;
 	status = "okay";
 
 	/* USER CODE BEGIN rtc */

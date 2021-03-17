@@ -37,10 +37,139 @@
 		ranges;
 
 		/* USER CODE BEGIN reserved-memory */
+		mcuram2:mcuram2@10000000{
+			compatible = "shared-dma-pool";
+			reg = <0x10000000 0x40000>;
+			no-map;
+		};
+
+		vdev0vring0:vdev0vring0@10040000{
+			compatible = "shared-dma-pool";
+			reg = <0x10040000 0x1000>;
+			no-map;
+		};
+
+		vdev0vring1:vdev0vring1@10041000{
+			compatible = "shared-dma-pool";
+			reg = <0x10041000 0x1000>;
+			no-map;
+		};
+
+		vdev0buffer:vdev0buffer@10042000{
+			compatible = "shared-dma-pool";
+			reg = <0x10042000 0x4000>;
+			no-map;
+		};
+
+		mcuram:mcuram@30000000{
+			compatible = "shared-dma-pool";
+			reg = <0x30000000 0x40000>;
+			no-map;
+		};
+
+		retram:retram@38000000{
+			compatible = "shared-dma-pool";
+			reg = <0x38000000 0x10000>;
+			no-map;
+		};
+
+		gpu_reserved:gpu@da000000{
+			reg = <0xda000000 0x4000000>;
+			no-map;
+		};
 		/* USER CODE END reserved-memory */
 	};
 
 	/* USER CODE BEGIN root */
+	
+	vin: vin {
+		compatible = "regulator-fixed";
+		regulator-name = "vin";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		regulator-always-on;
+	};
+	
+	// http://www.ti.com/lit/ds/symlink/tps54202.pdf
+    vddcore: TPS54202 {
+    	
+      compatible = "regulator-fixed";
+      regulator-name = "vddcore";
+      regulator-min-microvolt = <1350000>;
+      regulator-max-microvolt = <1350000>;
+      regulator-always-on;
+      vin-supply = <&vin>;
+
+    };
+    
+    // http://www.ti.com/lit/ds/symlink/tps54202.pdf
+    vdd_ddr: TPS54202 {
+
+        compatible = "regulator-fixed";
+        regulator-name = "vdd_ddr";
+        regulator-min-microvolt = <1350000>;
+        regulator-max-microvolt = <1350000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    };
+    
+    // https://datasheet.lcsc.com/szlcsc/1912111437_Seaward-Elec-SE8233X2_C437587.pdf
+    vdd: SE8233X2 {
+
+        compatible = "regulator-fixed";
+        regulator-name = "vdd";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    };
+    
+    // https://datasheet.lcsc.com/szlcsc/1912111437_Seaward-Elec-SE8233X2_C437587.pdf
+    v3v3: SE8233X2 {
+    	
+        compatible = "regulator-fixed";
+        regulator-name = "v3v3";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+        regulator-always-on;
+        vin-supply = <&vin>;
+    	
+    };
+    
+    https://datasheet.octopart.com/DMG2302U-7-Diodes-Inc.-datasheet-103571615.pdf
+    vdd_usb: DMG2302U {
+        compatible = "regulator-fixed";
+		regulator-name = "vdd_usb";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+		vin-supply = <&v3v3>;
+    };
+    
+	led{
+		compatible = "gpio-leds";
+
+		blue{
+			label = "heartbeat";
+			gpios = <&gpiod 11 GPIO_ACTIVE_HIGH>;
+			linux,default-trigger = "heartbeat";
+			default-state = "off";
+		};
+	};
+    
+	aliases{
+		ethernet0 = &ethernet0;
+		serial0 = &uart4;
+		serial1 = &usart3;
+		serial2 = &uart7;
+		serial3 = &usart2;
+	};
+
+	chosen{
+		stdout-path = "serial0:115200n8";
+	};
+
+    
 	/* USER CODE END root */
 
 	clocks {
@@ -70,6 +199,18 @@
 
 &pinctrl {
 	u-boot,dm-pre-reloc;
+
+	rtc_pins_mx: rtc_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('C', 13, ANALOG)>; /* RTC_LSCO */
+		};
+	};
+
+	rtc_sleep_pins_mx: rtc_sleep_mx-0 {
+		pins {
+			pinmux = <STM32_PINMUX('C', 13, ANALOG)>; /* RTC_LSCO */
+		};
+	};
 
 	sdmmc1_pins_mx: sdmmc1_mx-0 {
 		u-boot,dm-pre-reloc;
@@ -134,6 +275,31 @@
 		};
 	};
 
+	uart4_pins_mx: uart4_mx-0 {
+		u-boot,dm-pre-reloc;
+		pins1 {
+			u-boot,dm-pre-reloc;
+			pinmux = <STM32_PINMUX('B', 2, AF8)>; /* UART4_RX */
+			bias-disable;
+		};
+		pins2 {
+			u-boot,dm-pre-reloc;
+			pinmux = <STM32_PINMUX('G', 11, AF6)>; /* UART4_TX */
+			bias-disable;
+			drive-push-pull;
+			slew-rate = <0>;
+		};
+	};
+
+	uart4_sleep_pins_mx: uart4_sleep_mx-0 {
+		u-boot,dm-pre-reloc;
+		pins {
+			u-boot,dm-pre-reloc;
+			pinmux = <STM32_PINMUX('B', 2, ANALOG)>, /* UART4_RX */
+					 <STM32_PINMUX('G', 11, ANALOG)>; /* UART4_TX */
+		};
+	};
+
 	/* USER CODE BEGIN pinctrl */
 	/* USER CODE END pinctrl */
 };
@@ -146,17 +312,13 @@
 };
 
 &m4_rproc{
+	/*Restriction: "memory-region" property is not managed - please to use User-Section if needed*/
+	mboxes = <&ipcc 2>;
+	mbox-names = "shutdown";
 	status = "okay";
 
 	/* USER CODE BEGIN m4_rproc */
 	/* USER CODE END m4_rproc */
-
-	m4_system_resources{
-		status = "okay";
-
-		/* USER CODE BEGIN m4_system_resources */
-		/* USER CODE END m4_system_resources */
-	};
 };
 
 &bsec{
@@ -164,6 +326,14 @@
 
 	/* USER CODE BEGIN bsec */
 	/* USER CODE END bsec */
+};
+
+&cryp1{
+	u-boot,dm-pre-reloc;
+	status = "okay";
+
+	/* USER CODE BEGIN cryp1 */
+	/* USER CODE END cryp1 */
 };
 
 &dma1{
@@ -174,7 +344,7 @@
 };
 
 &dma2{
-	status = "disabled";
+	status = "okay";
 
 	/* USER CODE BEGIN dma2 */
 	/* USER CODE END dma2 */
@@ -182,13 +352,21 @@
 
 &dmamux1{
 
-	dma-masters = <&dma1>;
-	dma-channels = <8>;
+	dma-masters = <&dma1 &dma2>;
+	dma-channels = <16>;
 
 	status = "okay";
 
 	/* USER CODE BEGIN dmamux1 */
 	/* USER CODE END dmamux1 */
+};
+
+&hash1{
+	u-boot,dm-pre-reloc;
+	status = "okay";
+
+	/* USER CODE BEGIN hash1 */
+	/* USER CODE END hash1 */
 };
 
 &hsem{
@@ -198,11 +376,18 @@
 	/* USER CODE END hsem */
 };
 
-&m4_dma2{
+&ipcc{
 	status = "okay";
 
-	/* USER CODE BEGIN m4_dma2 */
-	/* USER CODE END m4_dma2 */
+	/* USER CODE BEGIN ipcc */
+	/* USER CODE END ipcc */
+};
+
+&iwdg2{
+	status = "okay";
+
+	/* USER CODE BEGIN iwdg2 */
+	/* USER CODE END iwdg2 */
 };
 
 &mdma1{
@@ -210,6 +395,13 @@
 
 	/* USER CODE BEGIN mdma1 */
 	/* USER CODE END mdma1 */
+};
+
+&pwr_regulators{
+	status = "okay";
+
+	/* USER CODE BEGIN pwr_regulators */
+	/* USER CODE END pwr_regulators */
 };
 
 &rcc{
@@ -221,6 +413,9 @@
 };
 
 &rtc{
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&rtc_pins_mx>;
+	pinctrl-1 = <&rtc_sleep_pins_mx>;
 	status = "okay";
 
 	/* USER CODE BEGIN rtc */
@@ -246,6 +441,21 @@
 	/* USER CODE END tamp */
 };
 
+&uart4{
+	u-boot,dm-pre-reloc;
+	pinctrl-names = "default", "sleep";
+	pinctrl-0 = <&uart4_pins_mx>;
+	pinctrl-1 = <&uart4_sleep_pins_mx>;
+	status = "okay";
+
+	/* USER CODE BEGIN uart4 */
+	/* USER CODE END uart4 */
+};
+
 /* USER CODE BEGIN addons */
+
+
+
+
 /* USER CODE END addons */
 
